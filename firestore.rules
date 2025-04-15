@@ -1,0 +1,50 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Protege os dados do usuário autenticado
+    match /Users/{userId} {
+      allow read, write: if request.auth != null && request.auth.uid == userId;
+
+      // Subcoleção de faturas
+      match /Invoices/{invoiceId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Subcoleção de carrinhos
+      match /carts/{cartId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Subcoleção de produtos sem código de barras
+      match /ProductWithoutBarcode/{productId} {
+        allow read, write: if request.auth != null && request.auth.uid == userId;
+      }
+
+      // Subcoleção de produtos com código de barras
+      match /ProductsBarcode/{productId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+
+      // Subcoleção de operadores de caixa
+      match /Cashiers/{cashierId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+
+      // Subcoleção de clientes
+      match /Customers/{customerId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+
+      // Documentos de registros de caixa
+      match /cash_register/{docId} {
+        allow read, write: if request.auth.uid == userId;
+      }
+    }
+
+    // Bloquear acesso fora do caminho permitido
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
